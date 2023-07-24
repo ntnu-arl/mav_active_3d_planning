@@ -32,6 +32,7 @@ trajectory_generator:
   type: "Uniform"
   collision_optimistic: false
   bounding_volume_args: "/map_bounding_volume"
+  clearing_radius: 5.0
 
   # Generator Params
   n_segments: 5
