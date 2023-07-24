@@ -33,6 +33,35 @@ RosPlanner::RosPlanner(const ::ros::NodeHandle& nh,
   get_cpu_time_srv_ = nh_private_.advertiseService(
       "get_cpu_time", &RosPlanner::cpuSrvCallback, this);
 
+  // setup waypoints
+  //waypoints.push_back(Eigen::Vector3d(2.5002, 9.50012, 0.74016)); // the first waypoint is the starting position
+  waypoints.push_back(Eigen::Vector3d(-1.15879, 11.0427, 1.22193));
+  waypoints.push_back(Eigen::Vector3d(-4.92934, 12.3464, 1.5105));
+  waypoints.push_back(Eigen::Vector3d(-7.71492, 9.54075, 0.903292));
+  waypoints.push_back(Eigen::Vector3d(-8.67476, 5.75681, 1.77536));
+  waypoints.push_back(Eigen::Vector3d(-4.75464, 6.27141, 1.16884));
+  waypoints.push_back(Eigen::Vector3d(-7.8862, 4.08217, 2.35229));
+  waypoints.push_back(Eigen::Vector3d(-5.97726, 0.569703, 2.21613));
+  waypoints.push_back(Eigen::Vector3d(-3.48569, 3.68987, 2.45425));
+  waypoints.push_back(Eigen::Vector3d(-6.7687, 1.55481, 1.63976));
+  waypoints.push_back(Eigen::Vector3d(-5.65648, -2.28509, 1.50499));
+  waypoints.push_back(Eigen::Vector3d(-7.56109, -5.7875, 1.18002));
+  waypoints.push_back(Eigen::Vector3d(-6.88733, -9.72227, 0.927783));
+  waypoints.push_back(Eigen::Vector3d(-7.27365, -5.76098, 1.32646));
+  waypoints.push_back(Eigen::Vector3d(-4.42727, -8.56255, 1.10445));
+  waypoints.push_back(Eigen::Vector3d(-0.982985, -10.5619, 1.4782));
+  waypoints.push_back(Eigen::Vector3d(-2.39502, -6.82154, 1.6053));
+  waypoints.push_back(Eigen::Vector3d(1.28231, -8.36602, 1.90839));
+  waypoints.push_back(Eigen::Vector3d(5.17287, -7.76231, 1.20194));
+  waypoints.push_back(Eigen::Vector3d(1.31338, -8.31609, 2.09508));
+  waypoints.push_back(Eigen::Vector3d(-2.66011, -8.15369, 1.665));
+  waypoints.push_back(Eigen::Vector3d(-6.0572, -10.1666, 1.02613));
+  waypoints.push_back(Eigen::Vector3d(-6.07122, -6.1938, 1.49188));
+  waypoints.push_back(Eigen::Vector3d(-5.94604, -2.20287, 1.25357));
+  waypoints.push_back(Eigen::Vector3d(-3.73392, 1.08076, 1.82308));
+  waypoints.push_back(Eigen::Vector3d(-0.928438, -1.75279, 1.5064));
+  waypoints.push_back(Eigen::Vector3d(0.0961273, 2.09549, 1.88198));
+
   // Finish
   ROS_INFO_STREAM(
       "\n******************** Initialized Planner ********************\n"
@@ -88,12 +117,37 @@ void RosPlanner::planningLoop() {
       "\n******************** Planner is now Running ********************\n");
   run_srv_ = nh_private_.advertiseService("toggle_running",
                                           &RosPlanner::runSrvCallback, this);
+
+  VisualizationMarkers vis_waypoints;
+  for (size_t i = 0; i < waypoints.size(); i++) {
+    VisualizationMarker marker;
+    marker.position = waypoints[i];
+    marker.scale = Eigen::Vector3d(.1, .1, .1);
+    marker.type = VisualizationMarker::SPHERE;
+    marker.color.r = 1.;
+    marker.color.g = 0.;
+    marker.color.b = 0.;
+    marker.id = i+4732;
+    vis_waypoints.addMarker(marker);
+
+    std::cout << "added marker to vis list: " << marker.position.transpose() << std::endl;
+  }
+  visualization_msgs::MarkerArray waypoint_msg;
+  visualizationMarkersToMsg(vis_waypoints, &waypoint_msg);
+  for (visualization_msgs::Marker& m : waypoint_msg.markers) {
+    m.header.frame_id = "world";
+    m.header.stamp = ::ros::Time::now();
+  }
+  ::ros::Publisher waypoint_vis_pub_ = nh_.advertise<visualization_msgs::MarkerArray>(
+      "waypoint_visualization", 100);
+
   running_ = true;
   std::clock_t timer;
   while (::ros::ok()) {
     if (planning_) {
       loopIteration();
     }
+    waypoint_vis_pub_.publish(waypoint_msg);
     if (p_log_performance_) {
       timer = std::clock();
     }

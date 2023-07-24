@@ -52,6 +52,9 @@ class RosPlanner : public OnlinePlanner {
   void printError(const std::string& text) override;
 
  protected:
+  // oracle waypoints
+  std::vector<Eigen::Vector3d> waypoints;
+
   // ros
   ::ros::NodeHandle nh_;
   ::ros::NodeHandle nh_private_;
