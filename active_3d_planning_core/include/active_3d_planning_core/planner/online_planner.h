@@ -66,6 +66,12 @@ class OnlinePlanner : public PlannerI, public ModuleBase {
   void printError(const std::string& text) override;
 
  protected:
+  // oracle waypoints
+  std::vector<Eigen::Vector3d> waypoints;
+  Eigen::Vector3d current_waypoint;
+  size_t waypoint_idx;
+  double R;
+
   // factory access
   ModuleFactory* factory_;
 

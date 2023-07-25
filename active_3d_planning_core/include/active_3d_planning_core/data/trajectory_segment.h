@@ -65,6 +65,10 @@ struct TrajectorySegment {
   // Create a shallow copy of the segment (Includes everything except the unique
   // pointers children and info, which will not be setup!)
   TrajectorySegment shallowCopy();
+
+  // Validate that the segment is going within the next waypoint
+  int checkSegmentsAreWithinRange(Eigen::Vector3d target, double radius);
+  int in_range;
 };
 
 }  // namespace active_3d_planning

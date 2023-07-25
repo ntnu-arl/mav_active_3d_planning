@@ -61,6 +61,9 @@ RosPlanner::RosPlanner(const ::ros::NodeHandle& nh,
   waypoints.push_back(Eigen::Vector3d(-3.73392, 1.08076, 1.82308));
   waypoints.push_back(Eigen::Vector3d(-0.928438, -1.75279, 1.5064));
   waypoints.push_back(Eigen::Vector3d(0.0961273, 2.09549, 1.88198));
+  R = 1;
+  waypoint_idx = 0;
+  current_waypoint = waypoints[waypoint_idx];
 
   // Finish
   ROS_INFO_STREAM(
@@ -122,11 +125,12 @@ void RosPlanner::planningLoop() {
   for (size_t i = 0; i < waypoints.size(); i++) {
     VisualizationMarker marker;
     marker.position = waypoints[i];
-    marker.scale = Eigen::Vector3d(.1, .1, .1);
+    marker.scale = Eigen::Vector3d(R, R, R);
     marker.type = VisualizationMarker::SPHERE;
     marker.color.r = 1.;
     marker.color.g = 0.;
     marker.color.b = 0.;
+    marker.color.a = 0.3;
     marker.id = i+4732;
     vis_waypoints.addMarker(marker);
 
@@ -196,6 +200,17 @@ void RosPlanner::odomCallback(const nav_msgs::Odometry& msg) {
               p_replan_yaw_threshold_) {
         target_reached_ = true;
       }
+    }
+  }
+  if (running_ && (current_position_ - current_waypoint).norm() < R) {
+    waypoint_idx++;
+    if (waypoint_idx >= waypoints.size()) {
+      std::cout << "Finished all waypoints - stopping run" << std::endl;
+      running_ = false;
+    }
+    else {
+      std::cout << "Waypoint " << waypoint_idx-1 << " reached. Moving on to waypoint " << waypoint_idx << std::endl;
+      current_waypoint = waypoints[waypoint_idx];
     }
   }
 }
