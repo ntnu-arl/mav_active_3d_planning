@@ -32,10 +32,10 @@ trajectory_generator:
   type: "Uniform"
   collision_optimistic: false
   bounding_volume_args: "/map_bounding_volume"
-  clearing_radius: 5.0
+  clearing_radius: 20.0
 
   # Generator Params
-  n_segments: 5
+  n_segments: 10
   distance: 1.5
   yaw_angle: 1.2
   ascent_angle: 0.523
@@ -65,10 +65,10 @@ trajectory_evaluator:
   sensor_model:
     type: "IterativeRayCaster"
     sampling_time: 0.0
-    ray_length: 5.0
-    focal_length: 320.0
-    resolution_x: 640
-    resolution_y: 480
+    ray_length: 10.0
+    focal_length: 252.91646117045462
+    resolution_x: 480
+    resolution_y: 270
     downsampling_factor: 3.0
 
   # Choose a cost
