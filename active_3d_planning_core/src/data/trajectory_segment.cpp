@@ -6,7 +6,7 @@
 namespace active_3d_planning {
 
 TrajectorySegment::TrajectorySegment()
-    : parent(nullptr), tg_visited(false), gain(0.0), cost(0.0), value(0.0) {}
+    : parent(nullptr), tg_visited(false), gain(0.0), cost(0.0), value(0.0), in_range(0) {}
 
 bool TrajectorySegment::compare(TrajectorySegment a, TrajectorySegment b) {
   return (a.value < b.value);
@@ -65,6 +65,22 @@ TrajectorySegment TrajectorySegment::shallowCopy() {
   copy.tg_visited = tg_visited;
   copy.parent = parent;
   return copy;
+}
+
+int TrajectorySegment::checkSegmentsAreWithinRange(Eigen::Vector3d target, double radius) {
+  // check if children (if any) are within range
+  in_range = 0;
+  for (int i = 0; i < children.size(); ++i) {
+    in_range += children[i]->checkSegmentsAreWithinRange(target, radius);
+  }
+
+  // check if this node is within range
+  Eigen::Vector3d node = trajectory.back().position_W;
+  if ((target - node).norm() < radius) {
+    //trajectory.back().position_W = target;
+    in_range++;
+  }
+  return in_range;
 }
 
 }  // namespace active_3d_planning

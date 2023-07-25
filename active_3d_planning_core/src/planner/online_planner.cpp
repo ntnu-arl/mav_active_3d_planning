@@ -260,6 +260,10 @@ bool OnlinePlanner::requestNextTrajectory() {
     timer = std::clock();
   }
 
+  // check if any of the nodes are within range of the next waypoint.
+  int has_children_in_range = current_segment_.get()->checkSegmentsAreWithinRange(current_waypoint, R);
+  std::cout << "\nThere are " << current_segment_.get()->in_range << " nodes in range of waypoint " << waypoint_idx << " [" << current_waypoint.transpose() << "]" << std::endl;
+
   // Visualize candidates
   std::vector<TrajectorySegment*> trajectories_to_vis;
   current_segment_->getTree(&trajectories_to_vis);
