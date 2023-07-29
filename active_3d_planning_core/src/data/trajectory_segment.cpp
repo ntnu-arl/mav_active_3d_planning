@@ -76,7 +76,10 @@ int TrajectorySegment::checkSegmentsAreWithinRange(Eigen::Vector3d target, doubl
 
   // check if this node is within range
   Eigen::Vector3d node = trajectory.back().position_W;
-  if ((target - node).norm() < radius) {
+  Eigen::Vector2d target_xy = target.segment(0, 2);
+  Eigen::Vector2d node_xy = node.segment(0, 2);
+  Eigen::Vector2d diff_xy = target_xy - node_xy;
+  if (diff_xy.norm() < radius) {
     //trajectory.back().position_W = target;
     in_range++;
   }

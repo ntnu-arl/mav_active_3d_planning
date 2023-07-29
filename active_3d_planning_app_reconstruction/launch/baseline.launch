@@ -3,17 +3,19 @@
   <arg name="mav_name" default="firefly"/>
 
   <!-- Voxblox arguments -->
-  <arg name="voxel_size" default="0.10"/>
+  <arg name="voxel_size" default="0.20"/>
   <arg name="voxels_per_side" default="16"/>
-  <arg name="ray_length" default="5.0"/>
-  <arg name="method" default="merged"/>
+  <arg name="ray_length" default="15.0"/>
+  <arg name="method" default="fast"/> <!-- merged by default, fast for A-ORACLE -->
   <arg name="verbose_voxblox" default="false"/>
   
   <!-- Odometry  arguments (random_walk, ground_truth) -->
   <arg name="odom_noise_model" default="random_walk"/>
   
   <!--  Planner arguments-->
-  <arg name="planner_config" default="planners/example_config.yaml"/>
+  <!-- <arg name="planner_config" default="planners/example_config.yaml"/> -->
+  <arg name="planner_config" default="planners/exploration_planner.yaml"/>
+  <!-- <arg name="planner_config" default="planners/reconstruction_planner.yaml"/> -->
   
   <!--  Experiment arguments -->  
   <arg name="experiment_config" default="Gallery.yaml"/>
@@ -58,6 +60,7 @@
   <group ns="planner">
     <!-- Voxblox -->
     <node name="voxblox_node" pkg="voxblox_ros" type="esdf_server" output="screen" args="-alsologtostderr">
+      <rosparam file="$(find active_3d_planning_app_reconstruction)/cfg/voxblox/voxblox_gazebo_config.yaml" />
       <remap from="pointcloud" to="/firefly/rgbd/camera_depth/depth/points"/>
       <param name="use_tf_transforms" value="true"/>
       <param name="publish_tsdf_map" value="true" />

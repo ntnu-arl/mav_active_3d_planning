@@ -83,10 +83,10 @@ trajectory_evaluator:
       sensor_model:
         type: "IterativeRayCaster"
         sampling_time: 0.0
-        ray_length: 5.0
-        focal_length: 320.0
-        resolution_x: 172 # 640-90/172-30/127-22.5 deg fov
-        resolution_y: 480
+        ray_length: 10.0
+        focal_length: 252.91646117045462
+        resolution_x: 480
+        resolution_y: 270
         downsampling_factor: 5.0
 
       cost_computer:
