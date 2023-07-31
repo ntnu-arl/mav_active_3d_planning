@@ -41,9 +41,9 @@ trajectory_generator:
   sample_yaw: true
 
   sampling_mode: "semilocal"
-  semilocal_sampling_count: 10
-  semilocal_sampling_radius_max: 1.5
-  semilocal_sampling_radius_min: 1.5
+  semilocal_sampling_count: 1000
+  semilocal_sampling_radius_max: 5.0 #1.5
+  semilocal_sampling_radius_min: 0.5 #1.5
 
   rewire_root: true
   rewire_intermediate: true
