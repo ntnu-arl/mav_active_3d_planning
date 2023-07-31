@@ -131,10 +131,19 @@ void RosPlanner::planningLoop() {
     marker.color.g = 0.;
     marker.color.b = 0.;
     marker.color.a = 0.3;
-    marker.id = i+4732;
+    marker.id = 2*i;
     vis_waypoints.addMarker(marker);
-
     std::cout << "added marker to vis list: " << marker.position.transpose() << std::endl;
+
+    marker.type = VisualizationMarker::TEXT_VIEW_FACING;
+    marker.position(2) += 1.0;
+    marker.color.r = 0.;
+    marker.color.g = 1.;
+    marker.color.b = 0.;    
+    marker.color.a = 1.0;
+    marker.id = 2*i + 1;
+    marker.text = std::to_string(i+1);
+    vis_waypoints.addMarker(marker);
   }
   visualization_msgs::MarkerArray waypoint_msg;
   visualizationMarkersToMsg(vis_waypoints, &waypoint_msg);
