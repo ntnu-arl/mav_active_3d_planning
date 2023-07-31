@@ -14,7 +14,7 @@
   
   <!--  Planner arguments-->
   <!-- <arg name="planner_config" default="planners/example_config.yaml"/> -->
-  <arg name="planner_config" default="planners/exploration_planner.yaml"/>
+  <arg name="planner_config" default="planners/aoracle_baseline.yaml"/>
   <!-- <arg name="planner_config" default="planners/reconstruction_planner.yaml"/> -->
   
   <!--  Experiment arguments -->  
