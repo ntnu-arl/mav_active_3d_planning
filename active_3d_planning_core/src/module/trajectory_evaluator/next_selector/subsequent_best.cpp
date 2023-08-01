@@ -15,7 +15,7 @@ SubsequentBest::SubsequentBest(PlannerI& planner) : NextSelector(planner) {}
 void SubsequentBest::setupFromParamMap(Module::ParamMap* param_map) {}
 
 int SubsequentBest::selectNextBest(TrajectorySegment* traj_in) {
-  std::vector<int> candidates = {0};
+  std::vector<int> candidates = {};
   if (traj_in->in_range > 0) {
     //std::cout << "There are " << traj_in->in_range << " nodes in range of waypoint - Only evaluating nodes within range" << std::endl;
     double current_max = -1;
@@ -32,19 +32,23 @@ int SubsequentBest::selectNextBest(TrajectorySegment* traj_in) {
       }
     }
     if (current_max < 0)
-      std::cout << "this should not be possible!!!" << std::endl;
+      std::cout << "Node is within range but children were not, evaluating as normal!!! traj_in.size()=" << traj_in->children.size() << std::endl;
+    else {
+      // randomize if multiple maxima
+      std::random_shuffle(candidates.begin(), candidates.end());
+      return candidates[0];
+    }
   }
-  else {
-    double current_max = evaluateSingle(traj_in->children[0].get());
-    for (int i = 1; i < traj_in->children.size(); ++i) {
-      double current_value = evaluateSingle(traj_in->children[i].get());
-      if (current_value > current_max) {
-        current_max = current_value;
-        candidates.clear();
-        candidates.push_back(i);
-      } else if (current_value == current_max) {
-        candidates.push_back(i);
-      }
+  candidates.push_back(0);
+  double current_max = evaluateSingle(traj_in->children[0].get());
+  for (int i = 1; i < traj_in->children.size(); ++i) {
+    double current_value = evaluateSingle(traj_in->children[i].get());
+    if (current_value > current_max) {
+      current_max = current_value;
+      candidates.clear();
+      candidates.push_back(i);
+    } else if (current_value == current_max) {
+      candidates.push_back(i);
     }
   }
 
