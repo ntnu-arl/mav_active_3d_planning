@@ -226,7 +226,6 @@ void RosPlanner::odomCallback(const nav_msgs::Odometry& msg) {
     }
   }
 }
-}
 
 void RosPlanner::requestMovement(const EigenTrajectoryPointVector& trajectory) {
   if (trajectory.empty()) {
