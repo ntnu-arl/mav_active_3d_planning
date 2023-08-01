@@ -39,6 +39,9 @@ class TrajectoryEvaluator : public Module {
   // return the index of the most promising child segment
   virtual int selectNextBest(TrajectorySegment* traj_in);
 
+  virtual TrajectorySegment* selectNextBestWholeTraj(const TrajectorySegment* traj_in,
+                                      Eigen::Vector3d target, double radius);
+
   // Update an existing segment when a new trajectory is executed, return true
   // to keep segment alive, false to kill it
   virtual bool updateSegment(TrajectorySegment* segment);
@@ -92,6 +95,8 @@ class NextSelector : public Module {
   explicit NextSelector(PlannerI& planner) : Module(planner) {}
 
   virtual int selectNextBest(TrajectorySegment* traj_in) = 0;
+  virtual TrajectorySegment* selectNextBestWholeTraj(const TrajectorySegment* traj_in,
+                                      Eigen::Vector3d target, double radius) = 0;
 };
 
 // Abstract encapsulation for default/modular implementations of the

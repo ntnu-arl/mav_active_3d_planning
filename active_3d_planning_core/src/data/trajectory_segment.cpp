@@ -67,11 +67,13 @@ TrajectorySegment TrajectorySegment::shallowCopy() {
   return copy;
 }
 
-int TrajectorySegment::checkSegmentsAreWithinRange(Eigen::Vector3d target, double radius) {
+int TrajectorySegment::checkSegmentsAreWithinRange(Eigen::Vector3d target, double radius, bool recursive) {
   // check if children (if any) are within range
   in_range = 0;
-  for (int i = 0; i < children.size(); ++i) {
-    in_range += children[i]->checkSegmentsAreWithinRange(target, radius);
+  if (recursive) {
+    for (int i = 0; i < children.size(); ++i) {
+      in_range += children[i]->checkSegmentsAreWithinRange(target, radius, true);
+    }
   }
 
   // check if this node is within range

@@ -14,6 +14,9 @@ class RandomNext : public NextSelector {
   // override virtual functions
   int selectNextBest(TrajectorySegment* traj_in) override;
 
+  TrajectorySegment* selectNextBestWholeTraj(const TrajectorySegment* traj_in,
+                              Eigen::Vector3d target, double radius) override;
+
   void setupFromParamMap(Module::ParamMap* param_map) override;
 
  protected:

@@ -261,8 +261,8 @@ bool OnlinePlanner::requestNextTrajectory() {
   }
 
   // check if any of the nodes are within range of the next waypoint.
-  int has_children_in_range = current_segment_.get()->checkSegmentsAreWithinRange(current_waypoint, R);
-  std::cout << "\nThere are " << current_segment_.get()->in_range << " nodes in range of waypoint " << waypoint_idx << " [" << current_waypoint.transpose() << "]" << std::endl;
+  // int has_children_in_range = current_segment_.get()->checkSegmentsAreWithinRange(current_waypoint, R, true);
+  // std::cout << "\nThere are " << current_segment_.get()->in_range << " nodes in range of waypoint " << waypoint_idx << " [" << current_waypoint.transpose() << "]" << std::endl;
 
   // Visualize candidates
   std::vector<TrajectorySegment*> trajectories_to_vis;
@@ -294,39 +294,72 @@ bool OnlinePlanner::requestNextTrajectory() {
   }
 
   // Select best next trajectory and update root
-  int next_segment =
-      trajectory_evaluator_->selectNextBest(current_segment_.get());
+  // choose the informative node that is close to the next waypoint
+  TrajectorySegment* traj_out;
+  traj_out = trajectory_evaluator_->selectNextBestWholeTraj(current_segment_.get(),
+                              current_waypoint, R);
 
-  current_segment_ = std::move(current_segment_->children[next_segment]);
+  if (p_log_performance_) {
+    perf_next = static_cast<double>(std::clock() - timer) / CLOCKS_PER_SEC;
+  }
+  std::vector<TrajectorySegment*> traj_out_vector;
+  TrajectorySegment* tmp_segment = traj_out;
+  while (tmp_segment != current_segment_.get()) {
+    traj_out_vector.push_back(tmp_segment); // last segment goes first
+    tmp_segment = tmp_segment->parent;
+  }
+
+  EigenTrajectoryPointVector tmp_trajectory, trajectory;
+  double last_segment_time = 0.0;
+  for (int i = traj_out_vector.size() - 1; i >= 0; i--) {  
+    // connect the trajectories of multiple segments
+    trajectory_generator_->extractTrajectoryToPublish(&tmp_trajectory,
+                                                      *traj_out_vector[i]);
+    traj_out_vector[i]->trajectory = tmp_trajectory;
+    back_tracker_->segmentIsExecuted(*traj_out_vector[i]);
+    for (int j = 0; j < tmp_trajectory.size(); j++) {
+      EigenTrajectoryPoint tmp_point = tmp_trajectory[j];
+      // adjust the time_from_start_ns
+      tmp_point.time_from_start_ns += last_segment_time;
+      trajectory.push_back(tmp_point);
+    }
+    last_segment_time = trajectory.back().time_from_start_ns;
+  }
+  target_position_ = trajectory.back().position_W;
+  target_yaw_ = trajectory.back().getYaw();
+  requestMovement(trajectory);
+
+  // Move the unique_ptr to the end segment
+  for (int i = traj_out_vector.size() - 1; i >= 0; i--) {
+    int next_segment, j;
+    for (j = 0; j < current_segment_->children.size(); j++) {
+      if (current_segment_->children[j].get() == traj_out_vector[i]) {
+        next_segment = j;
+        break;
+      }
+    }
+    if (j == current_segment_->children.size()) {
+      std::cout << "Cannot find the segment, WHY?" << std::endl;
+    }
+    current_segment_ = std::move(current_segment_->children[next_segment]);
+  }
   current_segment_->parent = nullptr;
   current_segment_->gain = 0.0;
   current_segment_->cost = 0.0;
   current_segment_->value = 0.0;
-  if (p_log_performance_) {
-    perf_next = static_cast<double>(std::clock() - timer) / CLOCKS_PER_SEC;
-  }
   trajectories_to_vis.clear();
   current_segment_->getTree(&trajectories_to_vis);
   info_killed_next_ = num_trajectories - trajectories_to_vis.size();
-
-  // Move
-  EigenTrajectoryPointVector trajectory;
-  trajectory_generator_->extractTrajectoryToPublish(&trajectory,
-                                                    *current_segment_);
-  current_segment_->trajectory = trajectory;
-
-  requestMovement(trajectory);
-  target_position_ = trajectory.back().position_W;
-  target_yaw_ = trajectory.back().getYaw();
-  back_tracker_->segmentIsExecuted(*current_segment_);
 
   // Visualize
   if (p_log_performance_) {
     timer = std::clock();
   }
   if (p_visualize_) {
-    publishEvalVisualization(*current_segment_);
+    // publishEvalVisualization(*current_segment_);
+    // TODO: MODIFY THIS PART TO VISUALIZE THE TRAJECTORIES OF MULTIPLE SEGMENTS
     publishCompletedTrajectoryVisualization(*current_segment_);
+    //
   }
   if (p_log_performance_) {
     perf_vis += static_cast<double>(std::clock() - timer) / CLOCKS_PER_SEC;
@@ -596,7 +629,7 @@ void OnlinePlanner::publishTrajectoryVisualization(
   publishVisualization(value_markers);
   publishVisualization(gain_markers);
   publishVisualization(text_markers);
-  publishVisualization(goal_markers);
+  // publishVisualization(goal_markers);
 }
 
 void OnlinePlanner::publishCompletedTrajectoryVisualization(

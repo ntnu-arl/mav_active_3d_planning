@@ -24,5 +24,10 @@ int RandomNext::selectNextBest(TrajectorySegment* traj_in) {
   return candidates[0];
 }
 
+TrajectorySegment* RandomNext::selectNextBestWholeTraj(const TrajectorySegment* traj_in,
+                                            Eigen::Vector3d target, double radius) {
+  return nullptr;
+}
+
 }  // namespace next_selector
 }  // namespace active_3d_planning

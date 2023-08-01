@@ -35,7 +35,7 @@ trajectory_generator:
   crop_margin: 0.3
   crop_min_length: 0.5
   min_path_length: 0.5
-  max_extension_range: 1.5
+  max_extension_range: 4.0 #1.5
   maximum_tries: 1000
   sampling_rate: 20.0
   sample_yaw: true
@@ -74,7 +74,7 @@ trajectory_evaluator:
       sensor_model:
         type: "IterativeRayCaster"
         sampling_time: 0.0
-        ray_length: 10.0
+        ray_length: 5.0 # for detection camera to calculate interesting voxels
         focal_length: 252.91646117045462
         resolution_x: 480
         resolution_y: 270

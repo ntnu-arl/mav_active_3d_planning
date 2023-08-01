@@ -156,11 +156,18 @@ void RosPlanner::planningLoop() {
 
   running_ = true;
   std::clock_t timer;
+  
+  int waypoint_pub_cnt = 0;
+  
   while (::ros::ok()) {
     if (planning_) {
       loopIteration();
     }
-    waypoint_vis_pub_.publish(waypoint_msg);
+    waypoint_pub_cnt++;
+    if (waypoint_pub_cnt == 100) {
+      waypoint_vis_pub_.publish(waypoint_msg);
+      waypoint_pub_cnt = 0;
+    }
     if (p_log_performance_) {
       timer = std::clock();
     }
@@ -211,14 +218,17 @@ void RosPlanner::odomCallback(const nav_msgs::Odometry& msg) {
       }
     }
   }
-  if (running_ && (current_position_ - current_waypoint).norm() < R) {
+  Eigen::Vector2d current_xy = current_position_.segment(0, 2);
+  Eigen::Vector2d target_xy = current_waypoint.segment(0, 2);
+  Eigen::Vector2d diff_xy = current_xy - target_xy;
+  if (running_ && diff_xy.norm() < R) {
     waypoint_idx++;
     if (waypoint_idx >= waypoints.size()) {
       std::cout << "Finished all waypoints - stopping run" << std::endl;
       running_ = false;
     }
     else {
-      std::cout << "Waypoint " << waypoint_idx-1 << " reached. Moving on to waypoint " << waypoint_idx << std::endl;
+      std::cout << "Waypoint " << waypoint_idx << " reached. Moving on to waypoint " << waypoint_idx+1 << std::endl;
       current_waypoint = waypoints[waypoint_idx];
     }
   }

@@ -78,5 +78,10 @@ ValueTrajectoryPair SubsequentBestComplete::evaluateSingle(
   return res;
 }
 
+TrajectorySegment* SubsequentBestComplete::selectNextBestWholeTraj(const TrajectorySegment* traj_in,
+                                            Eigen::Vector3d target, double radius) {
+  return nullptr;
+}
+
 }  // namespace next_selector
 }  // namespace active_3d_planning

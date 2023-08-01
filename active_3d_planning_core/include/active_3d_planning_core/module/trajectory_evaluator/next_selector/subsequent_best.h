@@ -16,11 +16,17 @@ class SubsequentBest : public NextSelector {
 
   void setupFromParamMap(Module::ParamMap* param_map) override;
 
+  TrajectorySegment* selectNextBestWholeTraj(const TrajectorySegment* traj_in,
+                              Eigen::Vector3d target, double radius) override;
+
  protected:
   static ModuleFactoryRegistry::Registration<SubsequentBest> registration;
 
   // methods
   double evaluateSingle(TrajectorySegment* traj_in);
+
+  void gatherInRangeSeg(std::vector<TrajectorySegment*>* candidates_seg, const TrajectorySegment* traj_in,
+                        Eigen::Vector3d target, double radius);
 };
 
 }  // namespace next_selector

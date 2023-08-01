@@ -54,6 +54,16 @@ int TrajectoryEvaluator::selectNextBest(TrajectorySegment* traj_in) {
   return next_selector_->selectNextBest(traj_in);
 }
 
+TrajectorySegment* TrajectoryEvaluator::selectNextBestWholeTraj(const TrajectorySegment* traj_in,
+                                                Eigen::Vector3d target, double radius) {
+  // If not implemented use a (default) module
+  if (!next_selector_) {
+    next_selector_ = planner_.getFactory().createModule<NextSelector>(
+        p_next_args_, planner_, verbose_modules_);
+  }
+  return next_selector_->selectNextBestWholeTraj(traj_in, target, radius);
+}
+
 bool TrajectoryEvaluator::updateSegment(TrajectorySegment* segment) {
   // If not implemented use a (default) module
   if (!evaluator_updater_) {

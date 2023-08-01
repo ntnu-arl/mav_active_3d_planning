@@ -67,7 +67,7 @@ struct TrajectorySegment {
   TrajectorySegment shallowCopy();
 
   // Validate that the segment is going within the next waypoint
-  int checkSegmentsAreWithinRange(Eigen::Vector3d target, double radius);
+  int checkSegmentsAreWithinRange(Eigen::Vector3d target, double radius, bool recursive);
   int in_range;
 };
 

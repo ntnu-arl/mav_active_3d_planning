@@ -67,5 +67,10 @@ std::vector<TrajectorySegment*> RandomComplete::getFromSingle(
   return res;
 }
 
+TrajectorySegment* RandomComplete::selectNextBestWholeTraj(const TrajectorySegment* traj_in,
+                                            Eigen::Vector3d target, double radius) {
+  return nullptr;
+}
+
 }  // namespace next_selector
 }  // namespace active_3d_planning
