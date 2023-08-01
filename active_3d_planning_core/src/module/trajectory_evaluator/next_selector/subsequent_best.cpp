@@ -17,7 +17,7 @@ void SubsequentBest::setupFromParamMap(Module::ParamMap* param_map) {}
 int SubsequentBest::selectNextBest(TrajectorySegment* traj_in) {
   std::vector<int> candidates = {0};
   if (traj_in->in_range > 0) {
-    std::cout << "There are " << traj_in->in_range << " nodes in range of waypoint - Only evaluating nodes within range" << std::endl;
+    //std::cout << "There are " << traj_in->in_range << " nodes in range of waypoint - Only evaluating nodes within range" << std::endl;
     double current_max = -1;
     for (int i = 0; i < traj_in->children.size(); ++i) {
       if (traj_in->children[i]->in_range) {

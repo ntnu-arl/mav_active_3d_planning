@@ -294,31 +294,35 @@ bool OnlinePlanner::requestNextTrajectory() {
   }
 
   // Select best next trajectory and update root
-  int next_segment =
-      trajectory_evaluator_->selectNextBest(current_segment_.get());
+  // If WP is in range, loop until we are no longer in range
+  do {
+    int next_segment =
+        trajectory_evaluator_->selectNextBest(current_segment_.get());
 
-  current_segment_ = std::move(current_segment_->children[next_segment]);
-  current_segment_->parent = nullptr;
-  current_segment_->gain = 0.0;
-  current_segment_->cost = 0.0;
-  current_segment_->value = 0.0;
-  if (p_log_performance_) {
-    perf_next = static_cast<double>(std::clock() - timer) / CLOCKS_PER_SEC;
-  }
-  trajectories_to_vis.clear();
-  current_segment_->getTree(&trajectories_to_vis);
-  info_killed_next_ = num_trajectories - trajectories_to_vis.size();
+    current_segment_ = std::move(current_segment_->children[next_segment]);
+    current_segment_->parent = nullptr;
+    current_segment_->gain = 0.0;
+    current_segment_->cost = 0.0;
+    current_segment_->value = 0.0;
+    if (p_log_performance_) {
+      perf_next = static_cast<double>(std::clock() - timer) / CLOCKS_PER_SEC;
+    }
+    trajectories_to_vis.clear();
+    current_segment_->getTree(&trajectories_to_vis);
+    info_killed_next_ = num_trajectories - trajectories_to_vis.size();
 
-  // Move
-  EigenTrajectoryPointVector trajectory;
-  trajectory_generator_->extractTrajectoryToPublish(&trajectory,
-                                                    *current_segment_);
-  current_segment_->trajectory = trajectory;
+    // Move
+    EigenTrajectoryPointVector trajectory;
+    trajectory_generator_->extractTrajectoryToPublish(&trajectory,
+                                                      *current_segment_);
+    current_segment_->trajectory = trajectory;
 
-  requestMovement(trajectory);
-  target_position_ = trajectory.back().position_W;
-  target_yaw_ = trajectory.back().getYaw();
-  back_tracker_->segmentIsExecuted(*current_segment_);
+    requestMovement(trajectory);
+    target_position_ = trajectory.back().position_W;
+    target_yaw_ = trajectory.back().getYaw();
+    back_tracker_->segmentIsExecuted(*current_segment_);
+    std::cout << "Updated current segment" << std::endl;
+  } while (current_segment_.get()->in_range > 0);
 
   // Visualize
   if (p_log_performance_) {
