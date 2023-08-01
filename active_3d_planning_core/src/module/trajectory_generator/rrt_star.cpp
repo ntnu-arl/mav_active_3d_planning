@@ -353,7 +353,8 @@ bool RRTStar::rewireToBestParent(
       planner_.getTrajectoryEvaluator().computeCost(segment);
       planner_.getTrajectoryEvaluator().computeValue(segment);
       if (best_segment.parent == nullptr || force_rewire ||
-          segment->value > best_segment.value) {
+          // segment->value > best_segment.value) {
+            segment->cost > best_segment.cost) { // build the RRT-star tree based on the cost instead of value
         best_segment = segment->shallowCopy();
         force_rewire = false;
       }

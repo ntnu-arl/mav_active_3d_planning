@@ -17,10 +17,10 @@ highlight_executed_trajectory: true
 map:
   type: "VoxbloxMap"
 
-system_constraints:
-  v_max: 1.0
+system_constraints: # match VSEP
+  v_max: 0.75
   a_max: 1.0
-  yaw_rate_max: 1.6
+  yaw_rate_max: 1.047
   yaw_accel_max: 1.6
   collision_radius: 1.0
 
