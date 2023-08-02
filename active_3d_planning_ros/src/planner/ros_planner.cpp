@@ -125,7 +125,7 @@ void RosPlanner::planningLoop() {
   for (size_t i = 0; i < waypoints.size(); i++) {
     VisualizationMarker marker;
     marker.position = waypoints[i];
-    marker.scale = Eigen::Vector3d(R, R, R);
+    marker.scale = Eigen::Vector3d(R*2, R*2, R*2);
     marker.type = VisualizationMarker::SPHERE;
     marker.color.r = 1.;
     marker.color.g = 0.;
