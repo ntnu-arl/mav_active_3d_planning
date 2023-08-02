@@ -50,7 +50,7 @@ trajectory_generator:
   reinsert_root: true
   max_rewire_range: 1.6
   max_density_range: 1.0
-  n_neighbors: 2
+  n_neighbors: 200
 
   generator_updater:
     type: "RecheckCollision"
