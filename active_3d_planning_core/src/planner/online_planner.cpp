@@ -321,7 +321,7 @@ bool OnlinePlanner::requestNextTrajectory() {
     target_position_ = trajectory.back().position_W;
     target_yaw_ = trajectory.back().getYaw();
     back_tracker_->segmentIsExecuted(*current_segment_);
-  } while (current_segment_.get()->in_range > 0);
+  } while (current_segment_.get()->in_range > 1);
 
   // Visualize
   if (p_log_performance_) {
