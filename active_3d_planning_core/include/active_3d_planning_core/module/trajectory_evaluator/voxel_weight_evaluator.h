@@ -9,6 +9,11 @@
 namespace active_3d_planning {
 namespace trajectory_evaluator {
 
+// parameters to scale the interestingness of a voxel based on its distance to the camera
+constexpr double F_X = 252.91646117045462;
+constexpr double F_Y = 252.91646117045462;
+constexpr double area_factor = 1000.0 / (F_X * F_Y);
+
 // VoxelWeight uses the tsdf weight of surface voxels to estimate how much they
 // can still change with additional observations. Requires the TSDF map to
 // published to the planner intern voxblox server. Uses frontier voxels to allow
@@ -55,6 +60,9 @@ class VoxelWeightEvaluator : public FrontierEvaluator {
   // methods
   double getVoxelValue(const Eigen::Vector3d& voxel,
                        const Eigen::Vector3d& origin);
+  
+  double getVoxelInterestingness(const Eigen::Vector3d& voxel, 
+                                 const Eigen::Vector3d& origin);
 };
 
 }  // namespace trajectory_evaluator

@@ -22,7 +22,7 @@ system_constraints: # match VSEP
   a_max: 1.0
   yaw_rate_max: 1.047
   yaw_accel_max: 1.6
-  collision_radius: 1.0
+  collision_radius: 0.7 # copy from example_config.yaml
 
 trajectory_generator:
   collision_optimistic: false
@@ -67,8 +67,10 @@ trajectory_evaluator:
     update_sections_separate: false
 
     following_evaluator:
-      type: "NaiveEvaluator"
-      visualize_sensor_view: true
+      type: "VoxelWeightEvaluator"
+      visualize_sensor_view: false #true
+      accurate_frontiers: true
+      checking_distance: 2.0 # for frontier voxels detection: IGNORED
       bounding_volume_args: "/target_bounding_volume"
 
       sensor_model:
@@ -81,7 +83,8 @@ trajectory_evaluator:
         downsampling_factor: 5.0
 
       cost_computer:
-        type: "SegmentTime"
+        type: "SegmentLength" #"SegmentTime"
+        accumulate: true
 
       value_computer:
         type: "GlobalNormalizedGain"

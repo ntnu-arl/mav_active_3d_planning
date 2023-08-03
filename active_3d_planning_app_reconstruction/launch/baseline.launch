@@ -34,7 +34,7 @@
       <param name="use_rc_teleop" value="false"/>
       <param name="verbose" value="false" />
       <param name="reference_frame" value="world"/>
-      <param name="sampling_time" value="0.0021"/>
+      <param name="sampling_time" value="0.005"/>
     </node>
     
     <!-- Rotor input controller -->
@@ -61,7 +61,8 @@
     <!-- Voxblox -->
     <node name="voxblox_node" pkg="voxblox_ros" type="esdf_server" output="screen" args="-alsologtostderr">
       <rosparam file="$(find active_3d_planning_app_reconstruction)/cfg/voxblox/voxblox_gazebo_config.yaml" />
-      <remap from="pointcloud" to="/firefly/rgbd/camera_depth/depth/points"/>
+      <!-- <remap from="pointcloud" to="/firefly/rgbd/camera_depth/depth/points"/> -->
+      <remap from="pointcloud" to="/pcl_with_interestingness"/>
       <param name="use_tf_transforms" value="true"/>
       <param name="publish_tsdf_map" value="true" />
       <param name="publish_esdf_map" value="true" />

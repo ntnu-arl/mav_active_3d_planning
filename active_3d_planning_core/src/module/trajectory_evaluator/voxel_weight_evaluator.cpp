@@ -52,9 +52,22 @@ bool VoxelWeightEvaluator::computeGainFromVisibleVoxels(
   // just assume we take a single image from the last trajectory point here...
   Eigen::Vector3d origin = traj_in->trajectory.back().position_W;
   for (int i = 0; i < info->visible_voxels.size(); ++i) {
-    traj_in->gain += getVoxelValue(info->visible_voxels[i], origin);
+    // traj_in->gain += getVoxelValue(info->visible_voxels[i], origin);
+    traj_in->gain += getVoxelInterestingness(info->visible_voxels[i], origin);
   }
   return true;
+}
+
+double VoxelWeightEvaluator::getVoxelInterestingness(const Eigen::Vector3d& voxel,
+                                           const Eigen::Vector3d& origin) {
+  unsigned char voxel_state = map_->getVoxelState(voxel);
+  if (voxel_state == map::TSDFMap::OCCUPIED) {
+    // Surface voxel
+    double z = (voxel - origin).norm();
+    double interestingness = map_->getVoxelInterestingness(voxel);
+    return interestingness * exp(-area_factor * z * z);
+  }
+  return 0;
 }
 
 double VoxelWeightEvaluator::getVoxelValue(const Eigen::Vector3d& voxel,

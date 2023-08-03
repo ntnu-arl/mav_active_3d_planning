@@ -45,6 +45,8 @@ class VoxbloxMap : public TSDFMap {
   // get the maximum allowed weight (return 0 if using uncapped weights)
   double getMaximumWeight() override;
 
+  double getVoxelInterestingness(const Eigen::Vector3d& point) override;
+
   // accessor to the server for specialized planners
   voxblox::EsdfServer& getESDFServer();
 

@@ -22,6 +22,8 @@ class TSDFMap : public OccupancyMap {
 
   // get the maximum allowed weight (return 0 if using uncapped weights)
   virtual double getMaximumWeight() = 0;
+
+  virtual double getVoxelInterestingness(const Eigen::Vector3d& point) = 0;
 };
 
 }  // namespace map

@@ -358,7 +358,7 @@ bool OnlinePlanner::requestNextTrajectory() {
   if (p_visualize_) {
     // publishEvalVisualization(*current_segment_);
     // TODO: MODIFY THIS PART TO VISUALIZE THE TRAJECTORIES OF MULTIPLE SEGMENTS
-    publishCompletedTrajectoryVisualization(*current_segment_);
+    // publishCompletedTrajectoryVisualization(*current_segment_);
     //
   }
   if (p_log_performance_) {
