@@ -20,7 +20,7 @@ map:
 system_constraints: # match VSEP
   v_max: 0.75
   a_max: 1.0
-  yaw_rate_max: 1.047
+  yaw_rate_max: 1.6 # copy from example_config.yaml
   yaw_accel_max: 1.6
   collision_radius: 0.7 # copy from example_config.yaml
 
@@ -35,13 +35,13 @@ trajectory_generator:
   crop_margin: 0.3
   crop_min_length: 0.5
   min_path_length: 0.5
-  max_extension_range: 4.0 #1.5
+  max_extension_range: 1.5
   maximum_tries: 1000
   sampling_rate: 20.0
   sample_yaw: true
 
   sampling_mode: "semilocal"
-  semilocal_sampling_count: 1000
+  semilocal_sampling_count: 1024 # N_MP x H_IPN sampling points
   semilocal_sampling_radius_max: 5.0 #1.5
   semilocal_sampling_radius_min: 0.5 #1.5
 
@@ -68,10 +68,14 @@ trajectory_evaluator:
 
     following_evaluator:
       type: "VoxelWeightEvaluator"
-      visualize_sensor_view: false #true
+      visualize_sensor_view: true
       accurate_frontiers: true
       checking_distance: 2.0 # for frontier voxels detection: IGNORED
       bounding_volume_args: "/target_bounding_volume"
+
+      frontier_voxel_weight: 0.0 # copy from reconstruction_planner.yaml
+      new_voxel_weight: 0.0
+      min_impact_factor: 0.0
 
       sensor_model:
         type: "IterativeRayCaster"
@@ -83,8 +87,8 @@ trajectory_evaluator:
         downsampling_factor: 5.0
 
       cost_computer:
-        type: "SegmentLength" #"SegmentTime"
-        accumulate: true
+        type: "SegmentTime"
+        accumulate: false #true
 
       value_computer:
         type: "GlobalNormalizedGain"
@@ -100,3 +104,5 @@ back_tracker:
   n_rotations: 0
   stack_size: 10
 
+log_performance: true
+performance_log_dir: "/home/students/AORACLE_baseline/mav_active_3d"

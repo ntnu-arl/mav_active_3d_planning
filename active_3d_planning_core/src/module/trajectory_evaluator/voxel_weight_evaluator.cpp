@@ -65,7 +65,16 @@ double VoxelWeightEvaluator::getVoxelInterestingness(const Eigen::Vector3d& voxe
     // Surface voxel
     double z = (voxel - origin).norm();
     double interestingness = map_->getVoxelInterestingness(voxel);
-    return interestingness * exp(-area_factor * z * z);
+    interestingness = interestingness * exp(-area_factor * z * z); // scale based on the distance
+    return interestingness;
+  } else if (voxel_state == map::TSDFMap::UNKNOWN) {
+    // Unobserved voxels
+    if (p_frontier_voxel_weight_ > 0.0) {
+      if (isFrontierVoxel(voxel)) {
+        return p_frontier_voxel_weight_;
+      }
+    }
+    return p_new_voxel_weight_;
   }
   return 0;
 }
@@ -114,7 +123,8 @@ void VoxelWeightEvaluator::visualizeTrajectoryValue(
   SimulatedSensorInfo* info =
       reinterpret_cast<SimulatedSensorInfo*>(trajectory.info.get());
   for (int i = 0; i < info->visible_voxels.size(); ++i) {
-    value = getVoxelValue(info->visible_voxels[i], origin);
+    // value = getVoxelValue(info->visible_voxels[i], origin);
+    value = getVoxelInterestingness(info->visible_voxels[i], origin);
     if (value > 0.0) {
       marker.points.push_back(info->visible_voxels[i]);
       Color color;

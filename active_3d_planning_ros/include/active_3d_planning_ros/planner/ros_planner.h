@@ -35,6 +35,8 @@ class RosPlanner : public OnlinePlanner {
   bool cpuSrvCallback(std_srvs::SetBool::Request& req,    // NOLINT
                       std_srvs::SetBool::Response& res);  // NOLINT
 
+  void timerCallback(const ::ros::TimerEvent& event);
+
   void publishVisualization(const VisualizationMarkers& markers) override;
 
   void planningLoop() override;
@@ -60,6 +62,8 @@ class RosPlanner : public OnlinePlanner {
   ::ros::Publisher trajectory_vis_pub_;
   ::ros::ServiceServer run_srv_;
   ::ros::ServiceServer get_cpu_time_srv_;
+
+  ::ros::Timer timeout_timer;
 
   // variables
   ::ros::Time ros_timing_;      // track simulated time

@@ -61,6 +61,13 @@ class RRT : public TrajectoryGenerator {
 
   bool checkParamsValid(std::string* error_message) override;
 
+  // try connecting two poses and build a trajectory in between them. Return
+  // true on success.
+  virtual bool connectPoses(const EigenTrajectoryPoint& start,
+                            const EigenTrajectoryPoint& goal,
+                            EigenTrajectoryPointVector* result,
+                            bool check_collision = true);
+
  protected:
   static ModuleFactoryRegistry::Registration<RRT> registration;
 
@@ -96,12 +103,7 @@ class RRT : public TrajectoryGenerator {
   // find a goal position, return true on success.
   virtual bool sampleGoal(Eigen::Vector3d* goal_pos);
 
-  // try connecting two poses and build a trajectory in between them. Return
-  // true on success.
-  virtual bool connectPoses(const EigenTrajectoryPoint& start,
-                            const EigenTrajectoryPoint& goal,
-                            EigenTrajectoryPointVector* result,
-                            bool check_collision = true);
+
 
   // check max segment length and cropping
   virtual bool adjustGoalPosition(const Eigen::Vector3d& start_pos,

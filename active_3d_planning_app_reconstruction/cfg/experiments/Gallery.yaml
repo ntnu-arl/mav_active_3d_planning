@@ -7,7 +7,7 @@ map_bounding_volume:
   y_min: -15.5
   y_max: 15.5
   z_min: 0
-  z_max: 3.0 #10
+  z_max: 4.0 #10
 
 evaluation_bounding_volum:
   x_min: -10.5
@@ -15,7 +15,7 @@ evaluation_bounding_volum:
   y_min: -15.5
   y_max: 15.5
   z_min: 0
-  z_max: 3.0 #10
+  z_max: 4.0 #10
 
 target_bounding_volume:
   x_min: -10.5
@@ -23,11 +23,11 @@ target_bounding_volume:
   y_min: -15.5
   y_max: 15.5
   z_min: 0
-  z_max: 3.0 #10
+  z_max: 4.0 #10
 
 # System Constraints
 planner:
   system_constraints:
     v_max: 0.75
     a_max: 1.0
-    yaw_rate_max: 1.047
+    yaw_rate_max: 1.6

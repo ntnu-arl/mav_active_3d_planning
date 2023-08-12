@@ -356,7 +356,7 @@ bool OnlinePlanner::requestNextTrajectory() {
     timer = std::clock();
   }
   if (p_visualize_) {
-    // publishEvalVisualization(*current_segment_);
+    publishEvalVisualization(*current_segment_);
     // TODO: MODIFY THIS PART TO VISUALIZE THE TRAJECTORIES OF MULTIPLE SEGMENTS
     // publishCompletedTrajectoryVisualization(*current_segment_);
     //

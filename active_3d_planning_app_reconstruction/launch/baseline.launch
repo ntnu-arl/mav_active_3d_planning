@@ -60,7 +60,7 @@
   <group ns="planner">
     <!-- Voxblox -->
     <node name="voxblox_node" pkg="voxblox_ros" type="esdf_server" output="screen" args="-alsologtostderr">
-      <rosparam file="$(find active_3d_planning_app_reconstruction)/cfg/voxblox/voxblox_gazebo_config.yaml" />
+      <rosparam file="$(find active_3d_planning_app_reconstruction)/cfg/voxblox/voxblox_gazebo_config_evaluate.yaml" />
       <!-- <remap from="pointcloud" to="/firefly/rgbd/camera_depth/depth/points"/> -->
       <remap from="pointcloud" to="/pcl_with_interestingness"/>
       <param name="use_tf_transforms" value="true"/>

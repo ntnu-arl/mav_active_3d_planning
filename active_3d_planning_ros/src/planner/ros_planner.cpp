@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <sstream>
 #include <map>
 #include <string>
 #include <vector>
@@ -11,6 +12,8 @@
 
 #include "active_3d_planning_ros/module/module_factory_ros.h"
 #include "active_3d_planning_ros/tools/ros_conversion.h"
+
+#include "active_3d_planning_core/module/trajectory_generator/rrt_star.h"
 
 namespace active_3d_planning {
 namespace ros {
@@ -33,34 +36,41 @@ RosPlanner::RosPlanner(const ::ros::NodeHandle& nh,
   get_cpu_time_srv_ = nh_private_.advertiseService(
       "get_cpu_time", &RosPlanner::cpuSrvCallback, this);
 
-  // setup waypoints
-  //waypoints.push_back(Eigen::Vector3d(2.5002, 9.50012, 0.74016)); // the first waypoint is the starting position
-  waypoints.push_back(Eigen::Vector3d(-1.15879, 11.0427, 1.22193));
-  waypoints.push_back(Eigen::Vector3d(-4.92934, 12.3464, 1.5105));
-  waypoints.push_back(Eigen::Vector3d(-7.71492, 9.54075, 0.903292));
-  waypoints.push_back(Eigen::Vector3d(-8.67476, 5.75681, 1.77536));
-  waypoints.push_back(Eigen::Vector3d(-4.75464, 6.27141, 1.16884));
-  waypoints.push_back(Eigen::Vector3d(-7.8862, 4.08217, 2.35229));
-  waypoints.push_back(Eigen::Vector3d(-5.97726, 0.569703, 2.21613));
-  waypoints.push_back(Eigen::Vector3d(-3.48569, 3.68987, 2.45425));
-  waypoints.push_back(Eigen::Vector3d(-6.7687, 1.55481, 1.63976));
-  waypoints.push_back(Eigen::Vector3d(-5.65648, -2.28509, 1.50499));
-  waypoints.push_back(Eigen::Vector3d(-7.56109, -5.7875, 1.18002));
-  waypoints.push_back(Eigen::Vector3d(-6.88733, -9.72227, 0.927783));
-  waypoints.push_back(Eigen::Vector3d(-7.27365, -5.76098, 1.32646));
-  waypoints.push_back(Eigen::Vector3d(-4.42727, -8.56255, 1.10445));
-  waypoints.push_back(Eigen::Vector3d(-0.982985, -10.5619, 1.4782));
-  waypoints.push_back(Eigen::Vector3d(-2.39502, -6.82154, 1.6053));
-  waypoints.push_back(Eigen::Vector3d(1.28231, -8.36602, 1.90839));
-  waypoints.push_back(Eigen::Vector3d(5.17287, -7.76231, 1.20194));
-  waypoints.push_back(Eigen::Vector3d(1.31338, -8.31609, 2.09508));
-  waypoints.push_back(Eigen::Vector3d(-2.66011, -8.15369, 1.665));
-  waypoints.push_back(Eigen::Vector3d(-6.0572, -10.1666, 1.02613));
-  waypoints.push_back(Eigen::Vector3d(-6.07122, -6.1938, 1.49188));
-  waypoints.push_back(Eigen::Vector3d(-5.94604, -2.20287, 1.25357));
-  waypoints.push_back(Eigen::Vector3d(-3.73392, 1.08076, 1.82308));
-  waypoints.push_back(Eigen::Vector3d(-0.928438, -1.75279, 1.5064));
-  waypoints.push_back(Eigen::Vector3d(0.0961273, 2.09549, 1.88198));
+  // ROS oneshot timer
+  timeout_timer = nh.createTimer(::ros::Duration(1.0), &RosPlanner::timerCallback, this, true);
+  timeout_timer.stop();
+
+  // setup waypoints from txt file
+  std::string line;   // To read each line from code
+  int i=0;    // Variable to keep count of each line
+  std::ifstream mFile("/home/students/AORACLE_baseline/vsep/vsep_sparse5/waypoint_gallery_Explore.txt");   
+  std::cout << "WAYPOINT:" << std::endl;
+  if(mFile.is_open())
+  {
+    while(!mFile.eof())
+    {
+      getline(mFile, line);
+      // parse the line
+      std::stringstream streamData(line);
+      std::vector<std::string> waypoint_coordinates;
+      std::string tmp_string;
+      while (getline(streamData, tmp_string, ' ')) {
+        waypoint_coordinates.push_back(tmp_string);
+      }
+      if (waypoint_coordinates.size() > 0) {
+        double x = std::stod(waypoint_coordinates[0]);
+        double y = std::stod(waypoint_coordinates[1]);
+        double z = std::stod(waypoint_coordinates[2]);
+        // print
+        std::cout << x << "," << y << "," << z << std::endl;
+        // push to the waypoint list
+        waypoints.push_back(Eigen::Vector3d(x, y, z));
+        i++;
+      }
+    }
+    mFile.close();
+  }
+
   R = 1;
   waypoint_idx = 0;
   current_waypoint = waypoints[waypoint_idx];
@@ -228,9 +238,70 @@ void RosPlanner::odomCallback(const nav_msgs::Odometry& msg) {
       running_ = false;
     }
     else {
-      std::cout << "Waypoint " << waypoint_idx << " reached. Moving on to waypoint " << waypoint_idx+1 << std::endl;
-      current_waypoint = waypoints[waypoint_idx];
+      double timeout_period;
+      Eigen::Vector3d old_waypoint = current_waypoint;
+      do {
+        std::cout << "Waypoint " << waypoint_idx << " reached. Moving on to waypoint " << waypoint_idx+1 << std::endl;
+        current_waypoint = waypoints[waypoint_idx];
+        // start ros timer here (no need for first waypoint with time = distance * factor / vel (0.75 m/s)
+        timeout_timer.stop();
+        timeout_period = (waypoints[waypoint_idx] - old_waypoint).norm() * 2.0 / getSystemConstraints().v_max;
+        if (timeout_period == 0) {
+          waypoint_idx++;
+        }
+      } while (timeout_period == 0);
+      timeout_timer.setPeriod(::ros::Duration(timeout_period));
+      timeout_timer.start();
     }
+  }
+}
+
+// timeout callback -> print something -> send MPC traj to go to the next wp
+void RosPlanner::timerCallback(const ::ros::TimerEvent& event)
+{
+  std::cout << "TIMEOUT while going to waypoint " << waypoint_idx+1 << std::endl;
+
+  // create mew trajectory
+  EigenTrajectoryPointVector trajectory;
+  EigenTrajectoryPoint tmp_point, tmp_point_2;
+  tmp_point.position_W = current_position_;
+  tmp_point.orientation_W_B = current_orientation_;
+  tmp_point.time_from_start_ns = 0;
+  trajectory.push_back(tmp_point);
+  
+  double yaw_to_next_waypoint;
+  if (waypoint_idx >= 1) {
+    Eigen::Vector3d waypoint_vec = current_waypoint - current_position_;
+    if ((waypoint_vec[0] != 0) || (waypoint_vec[1] != 0)) {
+      yaw_to_next_waypoint = atan2(waypoint_vec[1], waypoint_vec[0]);
+    }
+    else {
+      yaw_to_next_waypoint = 0.0;
+    }
+  }
+  else { // shouldn't go here
+    yaw_to_next_waypoint = 0.0;
+  }
+
+  // change the yaw angle to point to the next waypoint (clear the unknown space)
+  tmp_point.setFromYaw(yaw_to_next_waypoint);
+  tmp_point.time_from_start_ns = 3e9; // can rotate at least 180 degrees
+  trajectory.push_back(tmp_point);
+
+  // go to the current target in straight line
+  tmp_point_2 = tmp_point;
+  tmp_point_2.position_W = target_position_;
+  tmp_point_2.setFromYaw(target_yaw_);
+  tmp_point_2.time_from_start_ns += (target_position_ - current_position_).norm() / getSystemConstraints().v_max * 1e9;
+  trajectory.push_back(tmp_point_2);
+
+  EigenTrajectoryPointVector result;
+  // go to the current target in straight line if it's non-collision connection
+  trajectory_generator::RRTStar* rrt_star_ptr = static_cast<trajectory_generator::RRTStar*>(trajectory_generator_.get()); // DIRTY HACK 
+  if (rrt_star_ptr->connectPoses(tmp_point, tmp_point_2,
+                     &result, true)) { // check for collision
+
+    requestMovement(trajectory);
   }
 }
 
