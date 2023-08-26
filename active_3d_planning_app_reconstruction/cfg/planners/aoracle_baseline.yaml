@@ -96,6 +96,10 @@ trajectory_evaluator:
       next_selector:
         type: "SubsequentBest"
 
+  # add this to be able to run on Huan's laptop (no need for supercomputer)
+  # next_selector:
+  #   type: "SubsequentBest"
+
 back_tracker:
   type: "RotateReverse"
   turn_rate: 1.6
