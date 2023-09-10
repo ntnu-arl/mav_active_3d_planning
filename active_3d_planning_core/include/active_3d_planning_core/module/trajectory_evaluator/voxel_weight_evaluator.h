@@ -10,8 +10,8 @@ namespace active_3d_planning {
 namespace trajectory_evaluator {
 
 // parameters to scale the interestingness of a voxel based on its distance to the camera
-constexpr double F_X = 252.91646117045462;
-constexpr double F_Y = 252.91646117045462;
+constexpr double F_X = 240.9515380859375;
+constexpr double F_Y = 240.9515380859375;
 constexpr double area_factor = 1000.0 / (F_X * F_Y);
 
 // VoxelWeight uses the tsdf weight of surface voxels to estimate how much they
