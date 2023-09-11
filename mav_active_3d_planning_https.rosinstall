@@ -2,10 +2,12 @@
 - git: {local-name: catkin_simple, uri: 'https://github.com/catkin/catkin_simple.git'}
 - git: {local-name: eigen_catkin, uri: 'https://github.com/ethz-asl/eigen_catkin.git'}
 - git: {local-name: mav_trajectory_generation, uri: 'https://github.com/ethz-asl/mav_trajectory_generation.git'}
-- git: {local-name: voxblox, uri: 'https://github.com/ethz-asl/voxblox.git'}
+- git: {local-name: voxblox, uri: 'https://github.com/ntnu-arl/voxblox.git', version: dev/attentive_oracle_evaluate}
 - git: {local-name: protobuf_catkin, uri: 'https://github.com/ethz-asl/protobuf_catkin.git'}
 - git: {local-name: unreal_cv_ros, uri: 'https://github.com/ethz-asl/unreal_cv_ros.git'} 
-- git: {local-name: rotors_simulator, uri: 'https://github.com/ethz-asl/rotors_simulator.git'} 
+- git: {local-name: rotors_simulator, uri: 'https://github.com/ntnu-arl/rotors_simulator.git', version: dev/vel_yaw_command}
+- git: {local-name: rmf_sim, uri: 'https://github.com:ntnu-arl/rmf_sim.git', version: deep_collision_predictor_refactor}
+- git: {local-name: visual_saliency_ros, uri: 'https://github.com:ntnu-arl/visual_saliency_ros.git', version: attentive_oracle_evaluate}
 - git: {local-name: mav_control_rw, uri: 'https://github.com/ethz-asl/mav_control_rw.git'}
 
 - git: {local-name: eigen_checks, uri: 'https://github.com/ethz-asl/eigen_checks.git'}
